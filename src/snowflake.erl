@@ -103,12 +103,15 @@ find_nearest() ->
 -spec
 start_snowstorm(Server :: pid(), Name :: atom()) -> Pid :: pid().
 start_snowstorm(Server, Name) ->
-    {ok, Storm} = 
-	supervisor:start_child(
+	case supervisor:start_child(
 	  Server,
 	  {Name, {sf_snowstorm, start_link, [Name]},
-	   permanent, 5000, worker, [sf_snowstorm]}),
-    Storm.
+	   permanent, 5000, worker, [sf_snowstorm]}) of
+        {ok, Storm} ->
+            Storm;
+        {error, {already_started, Storm}} ->
+            Storm
+    end.
 
 %% ---------------------
 %% Application Behaviour
